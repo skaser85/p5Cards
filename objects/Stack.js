@@ -9,7 +9,7 @@ class Stack {
     addCard(card) {
         this.cards.push(card);
         if (this.cards.length > 10) 
-            this.louveredPadding = CARD_HEIGHT * 0.1;
+            this.louveredPadding = CARD_HEIGHT * 0.15;
     }
 
     removeCard(card) {
@@ -36,6 +36,10 @@ class Stack {
                         activeCard = c;
                     }
                 }
+            } else {
+                c.hovered = false;
+                if (activeCard === c)
+                    deactivateCard();
             }
         }
     }

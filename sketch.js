@@ -26,7 +26,7 @@ function setup() {
     stacks = [];
     stacks.push(new Stack(50, 20));
 
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 12; i++) {
         let c = deck.cards[i];
         stacks[0].addCard(c);
     }
@@ -65,11 +65,8 @@ function mouseDragged(event) {
 
 function mouseReleased() {
     if (activeCard) {
-        activeCard.dragging = false;
-        activeCard.hovered = false;
-        activeCard.returning = true;
         activeCard.turned = true;
-        activeCard = null;
+        deactivateCard();
     }
     return false;
 }
@@ -112,4 +109,11 @@ function pushEmitter(pos, _color) {
 
 function pushFader(pos, label) {
     faders.push(new Fader(pos.x, pos.y, label));
+}
+
+function deactivateCard() {
+    activeCard.dragging = false;
+    activeCard.hovered = false;
+    activeCard.returning = true;
+    activeCard = null;
 }
