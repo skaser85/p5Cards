@@ -1,13 +1,15 @@
 class Stack {
-    constructor(x, y) {
+    constructor(x, y, louvered) {
         this.pos = createVector(x, y);
         this.cards = [];
-        this.louvered = true;
+        this.louvered = louvered;
         this.louveredPadding = CARD_HEIGHT * 0.2;
+        this.moveSet = [];
     }
 
     addCards(cards) {
         for (let card of cards) {
+            card.stack = this;
             this.cards.push(card);
         }
 
@@ -28,13 +30,37 @@ class Stack {
         }
     }
 
-    removeCard(card) {
-        this.cards = this.cards.filter(c => c !== card);
+    removeCards(cards) {
+        this.cards = this.cards.filter(c => !cards.includes(c));
+    }
+
+    createMoveSet() {
+        if (!activeCard)
+            return;
+        let index = this.cards.indexOf(activeCard);
+        this.moveSet = this.cards.slice(index, this.cards.length);
+        for (let card of this.moveSet) {
+            card.originalPos = card.pos.copy();
+        }
+    }
+
+    updateMoveSet(delta) {
+        for (let card of this.moveSet) {
+            card.hovered = true;
+            card.pos.add(delta);
+        }
+    }
+
+    destroyMoveSet() {
+        for (let card of this.moveSet) {
+            card.setPos(card.originalPos);
+        }
+        this.moveSet = [];
     }
 
     update(m) {
 
-        if (activeCard) {
+        if (activeCard && !activeCard.dragging) {
             if (!activeCard.collides(m)) {
                 deactivateActiveCard();
             } else if (!activeCard.dragging) {
@@ -77,8 +103,5 @@ class Stack {
         for (let card of this.cards) {
             card.draw();
         }
-
-        if (activeCard && activeCard.dragging)
-            activeCard.draw();
     }
 }

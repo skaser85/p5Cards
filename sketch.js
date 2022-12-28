@@ -24,7 +24,7 @@ function setup() {
     deck.shuffle();
 
     stacks = [];
-    stacks.push(new Stack(50, 20));
+    stacks.push(new Stack(50, 20, true));
 
     let testCards = deck.cards.slice(0, 12);
     stacks[0].addCards(testCards);
@@ -46,9 +46,6 @@ function draw() {
         s.update(m);
         s.draw();
     }
-
-    if (activeCard && activeCard.dragging)
-        activeCard.draw();
 }
 
 function mouseDragged() {
@@ -57,7 +54,8 @@ function mouseDragged() {
             activeCard.dragging = true;
             activeCard.originalPos = activeCard.pos.copy();
         }
-        activeCard.pos.add(getMouseMoved());
+        let delta = getMouseMoved();
+        activeCard.stack.updateMoveSet(delta);
     }
     return false;
 }
@@ -117,7 +115,8 @@ function pushFader(pos, label) {
 function deactivateActiveCard() {
     activeCard.dragging = false;
     activeCard.hovered = false;
-    activeCard.pos.set(activeCard.originalPos);
+    activeCard.pos.set(activeCard.originalPos.copy());
+    activeCard.stack.destroyMoveSet();
     activeCard = null;
 }
 
@@ -127,4 +126,5 @@ function activateCard(card) {
     card.originalPos = card.pos.copy();
     card.hovered = true;
     activeCard = card;
+    activeCard.stack.createMoveSet();
 }
