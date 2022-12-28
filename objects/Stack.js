@@ -46,7 +46,6 @@ class Stack {
 
     updateMoveSet(delta) {
         for (let card of this.moveSet) {
-            card.hovered = true;
             card.pos.add(delta);
         }
     }
@@ -60,13 +59,16 @@ class Stack {
 
     update(m) {
 
+        if (!this.cards.length)
+            return;
+
         if (activeCard && !activeCard.dragging) {
-            if (!activeCard.collides(m)) {
+            if (!activeCard.collidesPoint(m)) {
                 deactivateActiveCard();
             } else if (!activeCard.dragging) {
                 let index = this.cards.indexOf(activeCard);
                 if (index < this.cards.length - 1) {
-                    if (this.cards[index+1].collides(m))
+                    if (this.cards[index+1].collidesPoint(m))
                         activateCard(this.cards[index+1]);
                 }
             }
@@ -76,7 +78,7 @@ class Stack {
             if (!activeCard) {
                 for (let i = this.cards.length-1; i >= 0; i--) {
                     let c = this.cards[i];
-                    if (c.collides(m)) {
+                    if (c.collidesPoint(m)) {
                         activateCard(c);
                         break;
                     }
@@ -85,7 +87,7 @@ class Stack {
         } else {
             if (!activeCard) {
                 let card = this.cards[this.cards.length-1];
-                if (card.collides(m))
+                if (card.collidesPoint(m))
                     activateCard(card);
             }
         }
@@ -100,7 +102,8 @@ class Stack {
         rect(-3, -3, CARD_WIDTH + 5, CARD_HEIGHT + 5);
         pop();
 
-        for (let card of this.cards) {
+        let cards = this.cards.filter(c => !this.moveSet.includes(c));
+        for (let card of cards) {
             card.draw();
         }
     }

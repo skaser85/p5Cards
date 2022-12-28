@@ -25,6 +25,7 @@ function setup() {
 
     stacks = [];
     stacks.push(new Stack(50, 20, true));
+    stacks.push(new Stack(200, 20, false));
 
     let testCards = deck.cards.slice(0, 12);
     stacks[0].addCards(testCards);
@@ -42,10 +43,16 @@ function draw() {
 
     let m = getMousePos();
 
+    let moveSet = null;
     for (let s of stacks) {
         s.update(m);
         s.draw();
+        if (s.moveSet.length)
+            moveSet = s.moveSet;
     }
+    if (moveSet)
+        for (let c of moveSet)
+            c.draw();
 }
 
 function mouseDragged() {
