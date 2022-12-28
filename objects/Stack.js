@@ -6,10 +6,22 @@ class Stack {
         this.louveredPadding = CARD_HEIGHT * 0.2;
     }
 
-    addCard(card) {
-        this.cards.push(card);
+    addCards(cards) {
+        for (let card of cards) {
+            this.cards.push(card);
+        }
+
         if (this.cards.length > 10) 
             this.louveredPadding = CARD_HEIGHT * 0.15;
+
+        if (this.louvered) {
+            for (let i = 0; i < this.cards.length; i++) {
+                let card = this.cards[i];
+                let x = this.pos.x;
+                let y = this.pos.y + (this.louveredPadding * i);
+                card.setPos(createVector(x, y));
+            }
+        }
     }
 
     removeCard(card) {
@@ -17,29 +29,28 @@ class Stack {
     }
 
     update(m) {
-        for (let i = 0; i < this.cards.length; i++) {
-            let c = this.cards[i];
-            if (c.returning) {
-                c.pos.set(c.originalPos);
-                c.returning = false;
-                continue;
+
+        if (activeCard) {
+            if (!activeCard.collides(m)) {
+                deactivateActiveCard();
+            } else if (!activeCard.dragging) {
+                let index = this.cards.indexOf(activeCard);
+                if (index < this.cards.length - 1) {
+                    if (this.cards[index+1].collides(m))
+                        activateCard(this.cards[index+1]);
+                }
             }
-            if (c.collides(m)) {
-                if (!activeCard) {
-                    c.hovered = true;
-                    activeCard = c;
-                } else {
-                    if (activeCard !== c) {
-                        activeCard.hovered = false;
-                        activeCard.dragging = false;
-                        c.hovered = true;
-                        activeCard = c;
+        }
+
+        if (this.louvered) {
+            if (!activeCard) {
+                for (let i = this.cards.length-1; i >= 0; i--) {
+                    let c = this.cards[i];
+                    if (c.collides(m)) {
+                        activateCard(c);
+                        break;
                     }
                 }
-            } else {
-                c.hovered = false;
-                if (activeCard === c)
-                    deactivateCard();
             }
         }
     }
@@ -53,18 +64,10 @@ class Stack {
         rect(-3, -3, CARD_WIDTH + 5, CARD_HEIGHT + 5);
         pop();
 
-        for (let i = 0; i < this.cards.length; i++) {
-            let card = this.cards[i];
-            if (this.louvered) {
-                if (!activeCard || (activeCard && activeCard !== card)) {
-                    card.setPos(this.pos.x, this.pos.y);
-                    let x = this.pos.x;
-                    let y = this.pos.y + (this.louveredPadding * i);
-                    card.setPos(createVector(x, y));
-                }
-            }
+        for (let card of this.cards) {
             card.draw();
         }
+
         if (activeCard && activeCard.dragging)
             activeCard.draw();
     }

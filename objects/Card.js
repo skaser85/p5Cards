@@ -9,8 +9,7 @@ class Card {
         this.hovered = false;
         this.turned = false;
         this.dragging = false;
-        this.returning = false;
-        this.originalPos = null;
+        this.originalPos = createVector(0, 0);
     }
 
     setPos(pos) {
@@ -43,14 +42,13 @@ class Card {
             fill(this.suit.color);
             // top left text
             let value = this.value;
-            if (this.value.length === 1)
-                value = "0" + this.value;
             let tw = textWidth(value);
             let tx = tw/2;
             let ty = this.fontSize;
             text(this.value, tx, ty);
+            text(this.suit.unicodeChar, tx, ty + this.fontSize);
             pop();
-            this.suit.drawShape(SUIT_SHAPE_SIZE * 2, this.fontSize + SUIT_SHAPE_SIZE * 2);
+            // this.suit.drawShape(SUIT_SHAPE_SIZE * 2, this.fontSize + SUIT_SHAPE_SIZE * 2);
 
             // bottom right text (flipped)
             push();
@@ -61,9 +59,13 @@ class Card {
             tx = -CARD_WIDTH + tw/2;
             ty = -CARD_HEIGHT + this.fontSize;
             text(this.value, tx, ty);
+            text(this.suit.unicodeChar, tx, ty + this.fontSize);
             pop();
-            this.suit.drawShape(CARD_WIDTH - SUIT_SHAPE_SIZE * 2, CARD_HEIGHT - this.fontSize - SUIT_SHAPE_SIZE * 2, true);
+            // this.suit.drawShape(CARD_WIDTH - SUIT_SHAPE_SIZE * 2, CARD_HEIGHT - this.fontSize - SUIT_SHAPE_SIZE * 2, true);
             pop();
+
+
+
         } else {
             push();
             translate(this.pos.x, this.pos.y);

@@ -96,6 +96,12 @@ const createSuit = (suitType) => {
         case SUITS.HEART: suit.drawShape = drawHeart; break;
         case SUITS.SPADE: suit.drawShape = drawSpade; break;
     }
+    switch (suitType) {
+        case SUITS.CLUB: suit.unicodeChar = "\u2663"; break;
+        case SUITS.DIAMOND: suit.unicodeChar = "\u2666"; break;
+        case SUITS.HEART: suit.unicodeChar = "\u2665"; break;
+        case SUITS.SPADE: suit.unicodeChar = "\u2660"; break;
+    }
     for (let v in VALUES) {
         suit.cards.push(new Card(suit, v));
     }
@@ -107,6 +113,7 @@ class Suit {
         this.suit = suitType;
         this.color = null;
         this.drawShape = null;
+        this.unicodeChar = null;
         this.cards = [];
     }
 }
