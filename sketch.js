@@ -51,14 +51,13 @@ function draw() {
         activeCard.draw();
 }
 
-function mouseDragged(event) {
+function mouseDragged() {
     if (activeCard) {
         if (!activeCard.dragging) {
             activeCard.dragging = true;
             activeCard.originalPos = activeCard.pos.copy();
         }
-        let delta = createVector(event.movementX, event.movementY);
-        activeCard.pos.add(delta);
+        activeCard.pos.add(getMouseMoved());
     }
     return false;
 }
@@ -87,6 +86,10 @@ function keyPressed() {
 
 function getMousePos() {
     return createVector(mouseX, mouseY);
+}
+
+function getMouseMoved() {
+    return createVector(movedX, movedY);
 }
 
 function drawGameText(txt, fontSize, tx, y) {

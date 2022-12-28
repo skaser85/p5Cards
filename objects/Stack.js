@@ -21,6 +21,10 @@ class Stack {
                 let y = this.pos.y + (this.louveredPadding * i);
                 card.setPos(createVector(x, y));
             }
+        } else {
+            for (let card of cards) {
+                card.setPos(this.pos);
+            }
         }
     }
 
@@ -51,6 +55,12 @@ class Stack {
                         break;
                     }
                 }
+            }
+        } else {
+            if (!activeCard) {
+                let card = this.cards[this.cards.length-1];
+                if (card.collides(m))
+                    activateCard(card);
             }
         }
     }
