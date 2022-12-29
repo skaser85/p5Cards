@@ -17,24 +17,15 @@ class Card {
     }
 
     collidesPoint(p) {
-        return ((p.x >= this.pos.x) && (p.x <= this.pos.x + CARD_WIDTH)) &&
-               ((p.y >= this.pos.y) && (p.y <= this.pos.y + CARD_HEIGHT));
+        return collidesRectPoint(this.getBoundingBox(), p);
     }
 
     collidesRect(other) {
-        let bb = this.getBoundingBox();
-        let obb = other.getBoundingBox();
-        // return (obb.t >= bb.t && obb.t <= bb.b) ||
-        //        (obb.r >= bb.r &&  )
+        return collidesRectRect(this, other);
     }
 
     getBoundingBox() {
-        return {
-            t: this.pos.y,
-            r: this.pos.x + CARD_WIDTH,
-            b: this.pos.y + CARD_HEIGHT,
-            l: this.pos.x
-        }
+        return getBoundingBox(this.pos, CARD_WIDTH, CARD_HEIGHT);
     }
 
     draw() {

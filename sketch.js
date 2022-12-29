@@ -11,6 +11,7 @@ let stacks;
 let mouseHasMoved;
 
 let activeCard;
+let activeStack;
 
 function setup() {
     createCanvas(1200, 800);
@@ -25,7 +26,8 @@ function setup() {
 
     stacks = [];
     stacks.push(new Stack(50, 20, true));
-    stacks.push(new Stack(200, 20, false));
+    stacks.push(new Stack(200, 20, true));
+    stacks.push(new Stack(400, 20, true));
 
     let testCards = deck.cards.slice(0, 12);
     stacks[0].addCards(testCards);
@@ -44,11 +46,14 @@ function draw() {
     let m = getMousePos();
 
     let moveSet = null;
+    activeStack = null;
     for (let s of stacks) {
         s.update(m);
-        s.draw();
         if (s.moveSet.length)
             moveSet = s.moveSet;
+        if (s.hovered)
+            activeStack = s;
+        s.draw();
     }
     if (moveSet)
         for (let c of moveSet)
@@ -69,6 +74,11 @@ function mouseDragged() {
 
 function mouseReleased() {
     if (activeCard) {
+        if (activeStack && activeStack !== activeCard.stack) {
+            let moveSet = activeCard.stack.moveSet;
+            activeCard.stack.removeCards(moveSet);
+            activeStack.addCards(moveSet);
+        }
         activeCard.turned = true;
         deactivateActiveCard();
     }
@@ -134,4 +144,27 @@ function activateCard(card) {
     card.hovered = true;
     activeCard = card;
     activeCard.stack.createMoveSet();
+}
+
+function collidesRectPoint(rbb, p) {
+    return ((p.x >= rbb.l) && (p.x <= rbb.r)) &&
+           ((p.y >= rbb.t) && (p.y <= rbb.b));
+}
+
+function collidesRectRect(r1, r2) {
+    let r1bb = r1.getBoundingBox();
+    let r2bb = r2.getBoundingBox();
+    return r1bb.r >= r2bb.l &&
+           r1bb.l <= r2bb.r &&
+           r1bb.b >= r2bb.t &&
+           r1bb.t <= r2bb.b;
+}
+
+function getBoundingBox(vec, w, h) {
+    return {
+        t: vec.y,
+        r: vec.x + w,
+        b: vec.y + h,
+        l: vec.x
+    }
 }

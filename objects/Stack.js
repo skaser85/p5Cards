@@ -5,6 +5,7 @@ class Stack {
         this.louvered = louvered;
         this.louveredPadding = CARD_HEIGHT * 0.2;
         this.moveSet = [];
+        this.hovered = false;
     }
 
     addCards(cards) {
@@ -22,10 +23,12 @@ class Stack {
                 let x = this.pos.x;
                 let y = this.pos.y + (this.louveredPadding * i);
                 card.setPos(createVector(x, y));
+                card.originalPos = card.pos.copy();
             }
         } else {
             for (let card of cards) {
                 card.setPos(this.pos);
+                card.originalPos = card.pos.copy();
             }
         }
     }
@@ -57,7 +60,19 @@ class Stack {
         this.moveSet = [];
     }
 
+    getBoundingBox() {
+        return getBoundingBox(this.pos, CARD_WIDTH, CARD_HEIGHT);
+    }
+
     update(m) {
+
+        if (activeCard) {
+            this.hovered = activeCard.collidesRect(this);
+            if (this.hovered) {
+                console.log(activeCard);
+                console.log(this);
+            }
+        }
 
         if (!this.cards.length)
             return;
@@ -98,7 +113,7 @@ class Stack {
         translate(this.pos.x, this.pos.y);
         noFill();
         strokeWeight(3);
-        stroke(color(0, 0, 0, 255));
+        stroke(this.hovered ? color("red") : color("black"));
         rect(-3, -3, CARD_WIDTH + 5, CARD_HEIGHT + 5);
         pop();
 
