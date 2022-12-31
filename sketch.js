@@ -1,7 +1,12 @@
-const CARD_WIDTH = 100;
-const CARD_HEIGHT = 150;
-const SUIT_SHAPE_SIZE = CARD_WIDTH/10;
-const SCALE_FACTOR = 1;
+const PILE_COUNT = 7;
+
+let C = {
+    cardWidth: 0,
+    cardHeight: 0,
+    suitShapeSize: 0,
+    scaleFactor: 0,
+    stackPadding: 0
+}
 
 let bkg_color;
 let deck;
@@ -13,8 +18,18 @@ let mouseHasMoved;
 let activeCard;
 let activeStack;
 
+function calcConstants() {
+    C.cardWidth = (width / PILE_COUNT) - (width/PILE_COUNT) / 3.5;
+    C.cardHeight = C.cardWidth + C.cardWidth/2;
+    C.suitShapeSize = C.cardWidth / 10;
+    C.scaleFactor = 1;
+    C.stackPadding = C.cardWidth / 4;
+}
+
 function setup() {
     createCanvas(1200, 800);
+
+    calcConstants();
 
     pallete = new Pallete();
     pallete.init();
@@ -25,12 +40,26 @@ function setup() {
     deck.shuffle();
 
     stacks = [];
-    stacks.push(new Stack(50, 20, true));
-    stacks.push(new Stack(200, 20, true));
-    stacks.push(new Stack(400, 20, true));
+    stacks.push(new DrawStack(C.stackPadding, C.stackPadding, false));
+    
+    let sx = width - C.cardWidth - C.stackPadding;
+    let sy = C.stackPadding;
+    for (let i = 0; i < 4; i++) {
+        stacks.push(new SuitStack(sx, sy, false));
+        sx -= C.cardWidth + C.stackPadding;
+    }
 
-    let testCards = deck.cards.slice(0, 12);
-    stacks[0].addCards(testCards);
+    let totalW = (PILE_COUNT * C.cardWidth) + (C.stackPadding * (PILE_COUNT - 1));
+    sx = width/2 - totalW/2;
+    sy = C.cardHeight + C.stackPadding * 3;
+    for (let i = 0; i < PILE_COUNT; i++) {
+        let s = new PlayStack(sx, sy, true);
+        deck.dealTo(s, (i+1));
+        stacks.push(s);
+        sx += C.cardWidth + C.stackPadding;
+    }
+
+    deck.dealTo(stacks[0], deck.cards.length-1);
 
     activeCard = null;
 
@@ -43,9 +72,17 @@ function draw() {
     if (!mouseHasMoved)
         return;
 
+    push();
+    stroke("black");
+    line(width/2, 0, width/2, height);
+    line(0, height/2, width, height/2);
+    pop();
+
     let m = getMousePos();
 
     let moveSet = null;
+    if (activeStack)
+        activeStack.hovered = false;
     activeStack = null;
     for (let s of stacks) {
         s.update(m);

@@ -1,25 +1,25 @@
 const drawClub= (x, y, flipped) => {
     push();
     translate(x, y);
-    scale(SCALE_FACTOR);
+    scale(C.scaleFactor);
     if (flipped)
         rotate(PI);
     strokeWeight(1);
     stroke("black");
     fill("black");
     beginShape();
-    vertex(-SUIT_SHAPE_SIZE*0.25, SUIT_SHAPE_SIZE);
-    vertex(-SUIT_SHAPE_SIZE*0.25, SUIT_SHAPE_SIZE*0.5);
-    vertex(-SUIT_SHAPE_SIZE, SUIT_SHAPE_SIZE*0.5);
-    vertex(-SUIT_SHAPE_SIZE, -SUIT_SHAPE_SIZE*0.25);
-    vertex(-SUIT_SHAPE_SIZE*0.5, -SUIT_SHAPE_SIZE*0.25);
-    vertex(-SUIT_SHAPE_SIZE*0.5, -SUIT_SHAPE_SIZE);
-    vertex(SUIT_SHAPE_SIZE*0.5, -SUIT_SHAPE_SIZE);
-    vertex(SUIT_SHAPE_SIZE*0.5, -SUIT_SHAPE_SIZE*0.25);
-    vertex(SUIT_SHAPE_SIZE, -SUIT_SHAPE_SIZE*0.25);
-    vertex(SUIT_SHAPE_SIZE, SUIT_SHAPE_SIZE*0.5);
-    vertex(SUIT_SHAPE_SIZE*0.25, SUIT_SHAPE_SIZE*0.5);
-    vertex(SUIT_SHAPE_SIZE*0.25, SUIT_SHAPE_SIZE);
+    vertex(-C.suitShapeSize*0.25, C.suitShapeSize);
+    vertex(-C.suitShapeSize*0.25, C.suitShapeSize*0.5);
+    vertex(-C.suitShapeSize, C.suitShapeSize*0.5);
+    vertex(-C.suitShapeSize, -C.suitShapeSize*0.25);
+    vertex(-C.suitShapeSize*0.5, -C.suitShapeSize*0.25);
+    vertex(-C.suitShapeSize*0.5, -C.suitShapeSize);
+    vertex(C.suitShapeSize*0.5, -C.suitShapeSize);
+    vertex(C.suitShapeSize*0.5, -C.suitShapeSize*0.25);
+    vertex(C.suitShapeSize, -C.suitShapeSize*0.25);
+    vertex(C.suitShapeSize, C.suitShapeSize*0.5);
+    vertex(C.suitShapeSize*0.25, C.suitShapeSize*0.5);
+    vertex(C.suitShapeSize*0.25, C.suitShapeSize);
     endShape(CLOSE);
     pop();
 }
@@ -27,17 +27,17 @@ const drawClub= (x, y, flipped) => {
 const drawDiamond= (x, y, flipped) => {
     push();
     translate(x, y); 
-    scale(SCALE_FACTOR);
+    scale(C.scaleFactor);
     if (flipped)
         rotate(PI);
     strokeWeight(1);
     stroke("black");
     fill("red");
     beginShape();
-    vertex(0, SUIT_SHAPE_SIZE);
-    vertex(-SUIT_SHAPE_SIZE, 0);
-    vertex(0, -SUIT_SHAPE_SIZE);
-    vertex(SUIT_SHAPE_SIZE,0);
+    vertex(0, C.suitShapeSize);
+    vertex(-C.suitShapeSize, 0);
+    vertex(0, -C.suitShapeSize);
+    vertex(C.suitShapeSize,0);
     endShape(CLOSE);
     pop();
 }
@@ -45,21 +45,21 @@ const drawDiamond= (x, y, flipped) => {
 const drawHeart = (x, y, flipped) => {
     push();
     translate(x, y);
-    scale(SCALE_FACTOR);
+    scale(C.scaleFactor);
     if (flipped)
         rotate(PI);
     strokeWeight(1);
     stroke("black");
     fill("red");
     beginShape();
-    vertex(0, SUIT_SHAPE_SIZE);
-    vertex(-SUIT_SHAPE_SIZE+(SUIT_SHAPE_SIZE*0.25), 0);
-    vertex(-SUIT_SHAPE_SIZE, -SUIT_SHAPE_SIZE);
-    vertex(-SUIT_SHAPE_SIZE+(SUIT_SHAPE_SIZE*0.5), -SUIT_SHAPE_SIZE);
-    vertex(0, -SUIT_SHAPE_SIZE/3);
-    vertex(SUIT_SHAPE_SIZE-(SUIT_SHAPE_SIZE*0.5), -SUIT_SHAPE_SIZE);
-    vertex(SUIT_SHAPE_SIZE, -SUIT_SHAPE_SIZE);
-    vertex(SUIT_SHAPE_SIZE-(SUIT_SHAPE_SIZE*0.25), 0);
+    vertex(0, C.suitShapeSize);
+    vertex(-C.suitShapeSize+(C.suitShapeSize*0.25), 0);
+    vertex(-C.suitShapeSize, -C.suitShapeSize);
+    vertex(-C.suitShapeSize+(C.suitShapeSize*0.5), -C.suitShapeSize);
+    vertex(0, -C.suitShapeSize/3);
+    vertex(C.suitShapeSize-(C.suitShapeSize*0.5), -C.suitShapeSize);
+    vertex(C.suitShapeSize, -C.suitShapeSize);
+    vertex(C.suitShapeSize-(C.suitShapeSize*0.25), 0);
     endShape(CLOSE);
     pop();
 }
@@ -67,22 +67,22 @@ const drawHeart = (x, y, flipped) => {
 const drawSpade= (x, y, flipped) => {
     push();
     translate(x, y);
-    scale(SCALE_FACTOR);
+    scale(C.scaleFactor);
     if (flipped)
         rotate(PI);
     strokeWeight(1);
     stroke("black");
     fill("black");
     beginShape();
-    vertex(-SUIT_SHAPE_SIZE*0.25, SUIT_SHAPE_SIZE);
-    vertex(-SUIT_SHAPE_SIZE*0.25, SUIT_SHAPE_SIZE*0.5);
-    vertex(-SUIT_SHAPE_SIZE, SUIT_SHAPE_SIZE*0.5);
-    vertex(-SUIT_SHAPE_SIZE*0.75, -SUIT_SHAPE_SIZE*0.25);
-    vertex(0, -SUIT_SHAPE_SIZE);
-    vertex(SUIT_SHAPE_SIZE*0.75, -SUIT_SHAPE_SIZE*0.25);
-    vertex(SUIT_SHAPE_SIZE, SUIT_SHAPE_SIZE*0.5);
-    vertex(SUIT_SHAPE_SIZE*0.25, SUIT_SHAPE_SIZE*0.5);
-    vertex(SUIT_SHAPE_SIZE*0.25, SUIT_SHAPE_SIZE);
+    vertex(-C.suitShapeSize*0.25, C.suitShapeSize);
+    vertex(-C.suitShapeSize*0.25, C.suitShapeSize*0.5);
+    vertex(-C.suitShapeSize, C.suitShapeSize*0.5);
+    vertex(-C.suitShapeSize*0.75, -C.suitShapeSize*0.25);
+    vertex(0, -C.suitShapeSize);
+    vertex(C.suitShapeSize*0.75, -C.suitShapeSize*0.25);
+    vertex(C.suitShapeSize, C.suitShapeSize*0.5);
+    vertex(C.suitShapeSize*0.25, C.suitShapeSize*0.5);
+    vertex(C.suitShapeSize*0.25, C.suitShapeSize);
     endShape(CLOSE);
     pop();
 }

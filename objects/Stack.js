@@ -3,7 +3,7 @@ class Stack {
         this.pos = createVector(x, y);
         this.cards = [];
         this.louvered = louvered;
-        this.louveredPadding = CARD_HEIGHT * 0.2;
+        this.louveredPadding = C.cardHeight * 0.2;
         this.moveSet = [];
         this.hovered = false;
     }
@@ -13,9 +13,6 @@ class Stack {
             card.stack = this;
             this.cards.push(card);
         }
-
-        if (this.cards.length > 10) 
-            this.louveredPadding = CARD_HEIGHT * 0.15;
 
         if (this.louvered) {
             for (let i = 0; i < this.cards.length; i++) {
@@ -27,7 +24,7 @@ class Stack {
             }
         } else {
             for (let card of cards) {
-                card.setPos(this.pos);
+                card.setPos(this.pos.copy());
                 card.originalPos = card.pos.copy();
             }
         }
@@ -61,21 +58,23 @@ class Stack {
     }
 
     getBoundingBox() {
-        return getBoundingBox(this.pos, CARD_WIDTH, CARD_HEIGHT);
+        return getBoundingBox(this.pos, C.cardWidth, C.cardHeight);
+    }
+
+    collidesRect(r) {
+        return collidesRectRect(this, r);
     }
 
     update(m) {
 
         if (activeCard) {
-            this.hovered = activeCard.collidesRect(this);
-            if (this.hovered) {
-                console.log(activeCard);
-                console.log(this);
-            }
+            this.hovered = this.collidesRect(activeCard);
         }
 
         if (!this.cards.length)
             return;
+
+        this.louveredPadding = this.cards.length > 10 ? C.cardHeight * 0.15 : C.cardHeight * 0.2;
 
         if (activeCard && !activeCard.dragging) {
             if (!activeCard.collidesPoint(m)) {
@@ -114,12 +113,40 @@ class Stack {
         noFill();
         strokeWeight(3);
         stroke(this.hovered ? color("red") : color("black"));
-        rect(-3, -3, CARD_WIDTH + 5, CARD_HEIGHT + 5);
+        rect(-3, -3, C.cardWidth + 5, C.cardHeight + 5);
         pop();
 
         let cards = this.cards.filter(c => !this.moveSet.includes(c));
         for (let card of cards) {
             card.draw();
         }
+    }
+}
+
+class DrawStack extends Stack {
+    constructor(x, y) {
+        super(x, y, false);
+    }
+}
+
+class SuitStack extends Stack {
+    constructor(x, y) {
+        super(x, y, false);
+    }
+}
+
+class PlayStack extends Stack {
+    constructor(x, y) {
+        super(x, y, true);
+        this.initialDeal = true;
+    }
+
+    update(m) {
+        // console.log(this.initialDeal);
+        if (this.initialDeal && this.cards.length) {
+            this.cards[this.cards.length-1].turned = true;
+            this.initialDeal = false;
+        }
+        super.update(m);
     }
 }
