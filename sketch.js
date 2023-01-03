@@ -18,6 +18,9 @@ let mouseHasMoved;
 let activeCard;
 let activeStack;
 
+let drawStack;
+let discardStack;
+
 function calcConstants() {
     C.cardWidth = (width / PILE_COUNT) - (width/PILE_COUNT) / 3.5;
     C.cardHeight = C.cardWidth + C.cardWidth/2;
@@ -40,7 +43,13 @@ function setup() {
     deck.shuffle();
 
     stacks = [];
-    stacks.push(new DrawStack(C.stackPadding, C.stackPadding, false));
+
+    drawStack = new DrawStack(C.stackPadding, C.stackPadding, false);
+    discardStack = new DiscardStack(drawStack.pos.x + C.cardWidth + C.stackPadding, C.stackPadding, false);
+    drawStack.setDiscardStack(discardStack);
+    stacks.push(drawStack);
+    stacks.push(discardStack);
+
     
     let sx = width - C.cardWidth - C.stackPadding;
     let sy = C.stackPadding;
@@ -112,9 +121,11 @@ function mouseDragged() {
 function mouseReleased() {
     if (activeCard) {
         if (activeStack && activeStack !== activeCard.stack) {
-            let moveSet = activeCard.stack.moveSet;
-            activeCard.stack.removeCards(moveSet);
-            activeStack.addCards(moveSet);
+            if (activeStack.willAccept(activeCard.stack.moveSet)) {
+                let moveSet = activeCard.stack.moveSet;
+                activeCard.stack.removeCards(moveSet);
+                activeStack.addCards(moveSet);
+            }
         }
         activeCard.turned = true;
         deactivateActiveCard();
@@ -125,6 +136,8 @@ function mouseReleased() {
 function mouseClicked() {
     if (activeCard)
         activeCard.turned = true;
+    if (drawStack.hovered)
+        drawStack.handleClick();
 }
 
 function mouseMoved() {

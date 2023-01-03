@@ -9,6 +9,8 @@ class Stack {
     }
 
     addCards(cards) {
+        if (!Array.isArray(cards))
+            cards = [cards];
         for (let card of cards) {
             card.stack = this;
             this.cards.push(card);
@@ -31,6 +33,8 @@ class Stack {
     }
 
     removeCards(cards) {
+        if (!Array.isArray(cards))
+            cards = [cards];
         this.cards = this.cards.filter(c => !cards.includes(c));
     }
 
@@ -65,10 +69,26 @@ class Stack {
         return collidesRectRect(this, r);
     }
 
+    collidesPoint(p) {
+        return collidesRectPoint(this.getBoundingBox(), p);
+    }
+
+    willAccept(cards) {
+        // should be implemented in the child class
+        return false;
+    }
+
+    checkCards(cards) {
+        // should be implemented in the child class
+        return false;
+    }
+
     update(m) {
 
         if (activeCard) {
             this.hovered = this.collidesRect(activeCard);
+        } else {
+            this.hovered = this.collidesPoint(m);
         }
 
         if (!this.cards.length)
@@ -126,12 +146,84 @@ class Stack {
 class DrawStack extends Stack {
     constructor(x, y) {
         super(x, y, false);
+        this.discardStack = null;
+    }
+
+    setDiscardStack(s) {
+        this.discardStack = s;
+    }
+
+    handleClick() {
+        if (this.cards.length) {
+            let card = this.cards[this.cards.length-1];
+            if (card.turned) {
+                this.removeCards(card);
+                this.discardStack.addCards(card);
+            }
+        } else {
+            this.reset();
+        }
+    }
+
+    reset() {
+        if (this.discardStack.cards.length) {
+            let cards = this.discardStack.cards;
+            for (let card of cards) {
+                card.turned = false;
+            }
+            this.discardStack.removeCards(cards);
+            this.addCards(cards);
+        }
+    }
+}
+
+class DiscardStack extends Stack {
+    constructor(x, y) {
+        super(x, y, false);
     }
 }
 
 class SuitStack extends Stack {
     constructor(x, y) {
         super(x, y, false);
+        this.suit = null;
+    }
+
+    willAccept(cards) {
+        let first = cards[0];
+        if (!this.cards.length) {
+            if (VALUES[first.value] !== VALUES.ACE)
+                return false;
+            if (cards.length > 1) {
+                if (!this.checkCards(cards))
+                    return false;
+            }
+            this.suit = first.suit;
+            return true;
+        } else {
+            if (cards.length === 1) {
+                return first.suit === this.suit;
+            } else {
+                return this.checkCards(cards);
+            }
+        }
+    }
+
+    checkCards(cards) {
+        for (let i = 1; i < cards.length; i++) {
+            let card1 = cards[i];
+            let card0 = cards[i-1];
+            if (card0.suit.suit !== card1.suit.suit) {
+                return false;
+            }
+            let val1 = VALUES[card1.value];
+            let val0 = VALUES[card0.value];
+            let diff = val1 - val0;
+            if (diff !== 1) {
+                return false;
+            }
+        }
+        return true;
     }
 }
 
@@ -142,7 +234,6 @@ class PlayStack extends Stack {
     }
 
     update(m) {
-        // console.log(this.initialDeal);
         if (this.initialDeal && this.cards.length) {
             this.cards[this.cards.length-1].turned = true;
             this.initialDeal = false;
