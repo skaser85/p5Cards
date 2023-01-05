@@ -240,4 +240,36 @@ class PlayStack extends Stack {
         }
         super.update(m);
     }
+
+    willAccept(cards) {
+        if (!this.cards.length)
+            return cards.length === 1;
+        let last = this.cards[this.cards.length-1];
+        let first = cards[0];
+        let suit = first.suit;
+        if (suit.color === "red")
+            if (![SUITS.CLUB, SUITS.SPADE].includes(last.suit.suit))
+                return false;
+        else
+            if (![SUITS.DIAMOND, SUITS.HEART].includes(last.suit.suit))
+                return false;
+        return this.checkCards(cards);
+    }
+
+    checkCards(cards) {
+        for (let i = 1; i < cards.length; i++) {
+            let card1 = cards[i];
+            let card0 = cards[i-1];
+            if (card0.suit.suit !== card1.suit.suit) {
+                return false;
+            }
+            let val1 = VALUES[card1.value];
+            let val0 = VALUES[card0.value];
+            let diff = val1 - val0;
+            if (diff !== 1) {
+                return false;
+            }
+        }
+        return true;
+    }
 }
