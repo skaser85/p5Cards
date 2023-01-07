@@ -168,10 +168,8 @@ class DrawStack extends Stack {
 
     reset() {
         if (this.discardStack.cards.length) {
-            let cards = this.discardStack.cards;
-            for (let card of cards) {
-                card.turned = false;
-            }
+            let cards = this.discardStack.cards.reverse();
+            cards.map(c => c.turned = false);
             this.discardStack.removeCards(cards);
             this.addCards(cards);
         }
