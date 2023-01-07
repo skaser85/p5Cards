@@ -101,9 +101,11 @@ function draw() {
             activeStack = s;
         s.draw();
     }
-    if (moveSet)
-        for (let c of moveSet)
+    if (moveSet) {
+        for (let c of moveSet) {
             c.draw();
+        }
+    }
 }
 
 function mouseDragged() {
@@ -122,8 +124,10 @@ function mouseReleased() {
     if (activeCard) {
         if (activeStack && activeStack !== activeCard.stack) {
             if (activeStack.willAccept(activeCard.stack.moveSet)) {
-                let moveSet = activeCard.stack.moveSet;
-                activeCard.stack.removeCards(moveSet);
+                let fromStack = activeCard.stack;
+                let moveSet = fromStack.moveSet;
+                fromStack.removeCards(moveSet);
+                fromStack.destroyMoveSet();
                 activeStack.addCards(moveSet);
             }
         }

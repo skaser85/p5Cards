@@ -56,7 +56,8 @@ class Stack {
 
     destroyMoveSet() {
         for (let card of this.moveSet) {
-            card.setPos(card.originalPos);
+            if (card.stack === this)
+                card.setPos(card.originalPos);
         }
         this.moveSet = [];
     }
@@ -242,34 +243,42 @@ class PlayStack extends Stack {
     }
 
     willAccept(cards) {
-        if (!this.cards.length)
-            return cards.length === 1;
-        let last = this.cards[this.cards.length-1];
-        let first = cards[0];
-        let suit = first.suit;
-        if (suit.color === "red")
-            if (![SUITS.CLUB, SUITS.SPADE].includes(last.suit.suit))
-                return false;
-        else
-            if (![SUITS.DIAMOND, SUITS.HEART].includes(last.suit.suit))
-                return false;
-        return this.checkCards(cards);
-    }
-
-    checkCards(cards) {
-        for (let i = 1; i < cards.length; i++) {
-            let card1 = cards[i];
-            let card0 = cards[i-1];
-            if (card0.suit.suit !== card1.suit.suit) {
-                return false;
-            }
-            let val1 = VALUES[card1.value];
-            let val0 = VALUES[card0.value];
-            let diff = val1 - val0;
-            if (diff !== 1) {
-                return false;
+        if (!this.cards.length) {
+            if (cards.length === 1) {
+                return true;
+            } else {
+                for (let i = 1; i < cards.length; i++) {
+                    if (!this.checkCards(cards[i-1], cards[i]))
+                        return false;
+                }
+                return true;
             }
         }
+        let last = this.cards[this.cards.length-1];
+        let first = cards[0];
+        if (!this.checkCards(last, first))
+            return false;
+        for (let i = 1; i < cards.length; i++) {
+            if (!this.checkCards(cards[i-1], cards[i]))
+                return false;
+        }
         return true;
+    }
+
+    checkSuitColor(prevCardSuit, checkCardSuit) {
+        let prevIsBlack = [SUITS.CLUB, SUITS.SPADE].includes(prevCardSuit);
+        let prevIsRed = [SUITS.DIAMOND, SUITS.HEART].includes(prevCardSuit);
+        let checkIsBlack = [SUITS.CLUB, SUITS.SPADE].includes(checkCardSuit);
+        let checkIsRed = [SUITS.DIAMOND, SUITS.HEART].includes(checkCardSuit);
+        return prevIsRed ? checkIsBlack : checkIsRed;
+    }
+
+    checkValue(prevCardValue, checkCardValue) {
+        return VALUES[prevCardValue] - VALUES[checkCardValue] === 1;
+    }
+
+    checkCards(prevCard, checkCard) {
+        return this.checkSuitColor(prevCard.suit.suit, checkCard.suit.suit) && 
+               this.checkValue(prevCard.value, checkCard.value);
     }
 }
