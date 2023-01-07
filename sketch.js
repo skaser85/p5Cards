@@ -131,7 +131,8 @@ function mouseReleased() {
                 activeStack.addCards(moveSet);
             }
         }
-        activeCard.turned = true;
+        if (!activeCard.turned && activeCard.stack.cards[activeCard.stack.cards.length-1] === activeCard)
+            activeCard.turned = true;
         deactivateActiveCard();
     }
     return false;
