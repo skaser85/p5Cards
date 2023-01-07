@@ -55,8 +55,12 @@ function setup() {
     stacks.push(drawStack);
     stacks.push(discardStack);
 
+    stacks.push(new UnoHand(center.x - C.cardWidth/2, center.y + C.cardHeight));
+
     deck = createUnoDeck(unoCardsPNG);
     deck.shuffle();
+    deck.dealTo(stacks[stacks.length-1], 7);
+    stacks[stacks.length-1].cards.map(c => c.turned = true);
     deck.dealTo(drawStack, deck.cards.length-1);
 
     console.log(deck);
@@ -76,23 +80,17 @@ function draw() {
 
     let m = getMousePos();
 
-    let moveSet = null;
     if (activeStack)
         activeStack.hovered = false;
     activeStack = null;
     for (let s of stacks) {
         s.update(m);
-        if (s.moveSet.length)
-            moveSet = s.moveSet;
         if (s.hovered)
             activeStack = s;
         s.draw();
     }
-    if (moveSet) {
-        for (let c of moveSet) {
-            c.draw();
-        }
-    }
+    if (activeCard)
+        activeCard.draw();
 }
 
 function mouseDragged() {
@@ -110,12 +108,11 @@ function mouseDragged() {
 function mouseReleased() {
     if (activeCard) {
         if (activeStack && activeStack !== activeCard.stack) {
-            if (activeStack.willAccept(activeCard.stack.moveSet)) {
+            if (activeStack.willAccept(activeCard)) {
                 let fromStack = activeCard.stack;
-                let moveSet = fromStack.moveSet;
-                fromStack.removeCards(moveSet);
+                fromStack.removeCards(activeCard);
                 fromStack.destroyMoveSet();
-                activeStack.addCards(moveSet);
+                activeStack.addCards(activeCard);
             }
         }
         if (!activeCard.turned && activeCard.stack.cards[activeCard.stack.cards.length-1] === activeCard)

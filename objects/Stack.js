@@ -6,6 +6,8 @@ class Stack {
         this.louveredPadding = C.cardHeight * 0.2;
         this.moveSet = [];
         this.hovered = false;
+        this.vertical = true;
+        this.usesMoveSets = true;
     }
 
     addCards(cards) {
@@ -19,8 +21,15 @@ class Stack {
         if (this.louvered) {
             for (let i = 0; i < this.cards.length; i++) {
                 let card = this.cards[i];
-                let x = this.pos.x;
-                let y = this.pos.y + (this.louveredPadding * i);
+                let x;
+                let y;
+                if (this.vertical) {
+                    x = this.pos.x;
+                    y = this.pos.y + (this.louveredPadding * i);
+                } else {
+                    x = this.pos.x + (this.louveredPadding * i);
+                    y = this.pos.y;
+                }
                 card.setPos(createVector(x, y));
                 card.originalPos = card.pos.copy();
             }
@@ -137,7 +146,9 @@ class Stack {
         rect(-3, -3, C.cardWidth + 5, C.cardHeight + 5);
         pop();
 
-        let cards = this.cards.filter(c => !this.moveSet.includes(c));
+        let cards = this.cards;
+        if (this.usesMoveSets)
+            cards = this.cards.filter(c => !this.moveSet.includes(c));
         for (let card of cards) {
             card.draw();
         }
@@ -348,5 +359,13 @@ class PlayStack extends Stack {
     checkCards(prevCard, checkCard) {
         return this.checkSuitColor(prevCard.suit.suit, checkCard.suit.suit) && 
                this.checkValue(prevCard.value, checkCard.value);
+    }
+}
+
+class UnoHand extends Stack {
+    constructor(x, y) {
+        super(x, y, true, false);
+        this.vertical = true;
+        this.usesMoveSets = false;
     }
 }
