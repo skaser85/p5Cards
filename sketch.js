@@ -9,6 +9,8 @@ let C = {
     stackPadding: 0
 }
 
+let center;
+
 let bkg_color;
 let deck;
 let cards;
@@ -18,6 +20,9 @@ let mouseHasMoved;
 
 let activeCard;
 let activeStack;
+
+let drawStack;
+let discardStack;
 
 let unoCardsPNG;
 let test;
@@ -30,6 +35,8 @@ function preload() {
 function setup() {
     createCanvas(1200, 800);
 
+    center = createVector(width/2, height/2);
+
     calcConstants();
 
     pallete = new Pallete();
@@ -41,14 +48,16 @@ function setup() {
 
     mouseHasMoved = false;
 
+    stacks = [];
+    drawStack = new DrawStack(center.x - C.cardWidth - C.cardWidth/4, center.y - C.cardHeight/2);
+    discardStack = new DiscardStack(center.x + C.cardWidth/4, center.y - C.cardHeight/2);
+    drawStack.setDiscardStack(discardStack);
+    stacks.push(drawStack);
+    stacks.push(discardStack);
+
     deck = createUnoDeck(unoCardsPNG);
     deck.shuffle();
-
-    test = [];
-    for (let i = 0; i < 1; i++) {
-        deck.cards[i].setPos(createVector(width/2, height/2));
-        test.push(deck.cards[i]);
-    }
+    deck.dealTo(drawStack, deck.cards.length-1);
 
     console.log(deck);
 }
@@ -67,9 +76,22 @@ function draw() {
 
     let m = getMousePos();
 
-    for (let t of test) {
-        t.update(m);
-        t.draw();
+    let moveSet = null;
+    if (activeStack)
+        activeStack.hovered = false;
+    activeStack = null;
+    for (let s of stacks) {
+        s.update(m);
+        if (s.moveSet.length)
+            moveSet = s.moveSet;
+        if (s.hovered)
+            activeStack = s;
+        s.draw();
+    }
+    if (moveSet) {
+        for (let c of moveSet) {
+            c.draw();
+        }
     }
 }
 
@@ -80,26 +102,25 @@ function mouseDragged() {
             activeCard.originalPos = activeCard.pos.copy();
         }
         let delta = getMouseMoved();
-        activeCard.pos.add(delta);
-        // activeCard.stack.updateMoveSet(delta);
+        activeCard.stack.updateMoveSet(delta);
     }
     return false;
 }
 
 function mouseReleased() {
     if (activeCard) {
-        // if (activeStack && activeStack !== activeCard.stack) {
-        //     if (activeStack.willAccept(activeCard.stack.moveSet)) {
-        //         let fromStack = activeCard.stack;
-        //         let moveSet = fromStack.moveSet;
-        //         fromStack.removeCards(moveSet);
-        //         fromStack.destroyMoveSet();
-        //         activeStack.addCards(moveSet);
-        //     }
-        // }
-        // if (!activeCard.turned && activeCard.stack.cards[activeCard.stack.cards.length-1] === activeCard)
-        //     activeCard.turned = true;
-        // deactivateActiveCard();
+        if (activeStack && activeStack !== activeCard.stack) {
+            if (activeStack.willAccept(activeCard.stack.moveSet)) {
+                let fromStack = activeCard.stack;
+                let moveSet = fromStack.moveSet;
+                fromStack.removeCards(moveSet);
+                fromStack.destroyMoveSet();
+                activeStack.addCards(moveSet);
+            }
+        }
+        if (!activeCard.turned && activeCard.stack.cards[activeCard.stack.cards.length-1] === activeCard)
+            activeCard.turned = true;
+        deactivateActiveCard();
     }
     return false;
 }
@@ -107,6 +128,8 @@ function mouseReleased() {
 function mouseClicked() {
     if (activeCard)
         activeCard.turned = true;
+    if (activeStack === drawStack)
+        activeStack.handleClick();
 }
 
 function mouseMoved() {
@@ -151,8 +174,8 @@ function pushFader(pos, label) {
 function deactivateActiveCard() {
     activeCard.dragging = false;
     activeCard.hovered = false;
-    // activeCard.pos.set(activeCard.originalPos.copy());
-    // activeCard.stack.destroyMoveSet();
+    activeCard.pos.set(activeCard.originalPos.copy());
+    activeCard.stack.destroyMoveSet();
     activeCard = null;
 }
 
@@ -161,7 +184,7 @@ function activateCard(card) {
         deactivateActiveCard()
     card.originalPos = card.pos.copy();
     activeCard = card;
-    // activeCard.stack.createMoveSet();
+    activeCard.stack.createMoveSet();
 }
 
 function collidesRectPoint(rbb, p) {

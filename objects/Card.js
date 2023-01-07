@@ -232,14 +232,23 @@ class UnoCard extends Card {
     }
 
     draw() {
-        push();
-        translate(this.pos.x, this.pos.y);
-        if (this.hovered) {
-            stroke(0, 255, 0, 255);
-            strokeWeight(6);
-            rect(1, 1, C.cardWidth - 1, C.cardHeight - 1, 15);
+        if (this.turned) {
+            push();
+            translate(this.pos.x, this.pos.y);
+            if (this.hovered) {
+                stroke(0, 255, 0, 255);
+                strokeWeight(6);
+                rect(1, 1, C.cardWidth - 1, C.cardHeight - 1, 15);
+            }
+            image(this.img, 0, 0, C.cardWidth, C.cardHeight, 0, 0, SPRITE_CARD_WIDTH, SPRITE_CARD_HEIGHT);
+            pop();
+        } else {
+            push();
+            translate(this.pos.x, this.pos.y);
+            fill(color(255, 50, 255));
+            stroke("black");
+            rect(0, 0, C.cardWidth, C.cardHeight);
+            pop();
         }
-        image(this.img, 0, 0, C.cardWidth, C.cardHeight, 0, 0, SPRITE_CARD_WIDTH, SPRITE_CARD_HEIGHT);
-        pop();
     }
 }

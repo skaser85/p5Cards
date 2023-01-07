@@ -144,6 +144,76 @@ class Stack {
     }
 }
 
+class StandardStack extends Stack {
+    constructor(x, y, louvered) {
+        this.pos = createVector(x, y);
+        this.cards = [];
+        this.louvered = louvered;
+        this.louveredPadding = C.cardHeight * 0.2;
+        this.moveSet = [];
+        this.hovered = false;
+    }
+
+    update(m) {
+
+        if (activeCard) {
+            this.hovered = this.collidesRect(activeCard);
+        } else {
+            this.hovered = this.collidesPoint(m);
+        }
+
+        if (!this.cards.length)
+            return;
+
+        this.louveredPadding = this.cards.length > 10 ? C.cardHeight * 0.15 : C.cardHeight * 0.2;
+
+        if (activeCard && !activeCard.dragging) {
+            if (!activeCard.collidesPoint(m)) {
+                deactivateActiveCard();
+            } else if (!activeCard.dragging) {
+                let index = this.cards.indexOf(activeCard);
+                if (index < this.cards.length - 1) {
+                    if (this.cards[index+1].collidesPoint(m))
+                        activateCard(this.cards[index+1]);
+                }
+            }
+        }
+
+        if (this.louvered) {
+            if (!activeCard) {
+                for (let i = this.cards.length-1; i >= 0; i--) {
+                    let c = this.cards[i];
+                    if (c.collidesPoint(m)) {
+                        activateCard(c);
+                        break;
+                    }
+                }
+            }
+        } else {
+            if (!activeCard) {
+                let card = this.cards[this.cards.length-1];
+                if (card.collidesPoint(m))
+                    activateCard(card);
+            }
+        }
+    }
+
+    draw() {
+        push();
+        translate(this.pos.x, this.pos.y);
+        noFill();
+        strokeWeight(3);
+        stroke(this.hovered ? color("red") : color("black"));
+        rect(-3, -3, C.cardWidth + 5, C.cardHeight + 5);
+        pop();
+
+        let cards = this.cards.filter(c => !this.moveSet.includes(c));
+        for (let card of cards) {
+            card.draw();
+        }
+    }
+}
+
 class DrawStack extends Stack {
     constructor(x, y) {
         super(x, y, false);
