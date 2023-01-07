@@ -1,11 +1,6 @@
 class Card {
-    constructor(suit, value) {
+    constructor() {
         this.pos = createVector(0, 0);
-        this.suit = suit;
-        this.value = value;
-        this.fontSize = 28;
-        this.color = "white";
-        this.padding = 0;
         this.hovered = false;
         this.turned = false;
         this.dragging = false;
@@ -26,6 +21,20 @@ class Card {
 
     getBoundingBox() {
         return getBoundingBox(this.pos, C.cardWidth, C.cardHeight);
+    }
+
+    draw() {
+        // should be implemented in the derived class
+    }
+}
+
+class StandardCard extends Card {
+    constructor(suit, value) {
+        super();
+        this.suit = suit;
+        this.value = value;
+        this.fontSize = 28;
+        this.color = "white";
     }
 
     draw() {
@@ -202,5 +211,35 @@ class Card {
             rect(0, 0, C.cardWidth, C.cardHeight);
             pop();
         }
+    }
+}
+
+class UnoCard extends Card {
+    constructor(img, unoColor, unoValue, wildCardType) {
+        super();
+        this.img = img;
+        this.unoColor = unoColor;
+        this.unoValue = unoValue;
+        this.wildCardType = wildCardType;
+    }
+
+    update(m) {
+        this.hovered = this.collidesPoint(m);
+        if (this.hovered && !activeCard)
+            activateCard(this);
+        if (!this.hovered && activeCard === this)
+            deactivateActiveCard(); 
+    }
+
+    draw() {
+        push();
+        translate(this.pos.x, this.pos.y);
+        if (this.hovered) {
+            stroke(0, 255, 0, 255);
+            strokeWeight(6);
+            rect(1, 1, C.cardWidth - 1, C.cardHeight - 1, 15);
+        }
+        image(this.img, 0, 0, C.cardWidth, C.cardHeight, 0, 0, SPRITE_CARD_WIDTH, SPRITE_CARD_HEIGHT);
+        pop();
     }
 }

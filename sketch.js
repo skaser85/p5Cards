@@ -1,4 +1,5 @@
-const PILE_COUNT = 7;
+const SPRITE_CARD_WIDTH = 240;
+const SPRITE_CARD_HEIGHT = 360
 
 let C = {
     cardWidth: 0,
@@ -18,15 +19,12 @@ let mouseHasMoved;
 let activeCard;
 let activeStack;
 
-let drawStack;
-let discardStack;
+let unoCardsPNG;
+let test;
 
-function calcConstants() {
-    C.cardWidth = (width / PILE_COUNT) - (width/PILE_COUNT) / 3.5;
-    C.cardHeight = C.cardWidth + C.cardWidth/2;
-    C.suitShapeSize = C.cardWidth / 10;
-    C.scaleFactor = 1;
-    C.stackPadding = C.cardWidth / 4;
+function preload() {
+    // card dim = w: 240 h: 360
+    unoCardsPNG = loadImage("./UNO_cards_deck.png");
 }
 
 function setup() {
@@ -39,40 +37,20 @@ function setup() {
 
     bkg_color = Pallete.brighten(pallete.colors.GREY, 0.5);
 
-    deck = createDeck();
-    deck.shuffle();
-
-    stacks = [];
-
-    drawStack = new DrawStack(C.stackPadding, C.stackPadding, false);
-    discardStack = new DiscardStack(drawStack.pos.x + C.cardWidth + C.stackPadding, C.stackPadding, false);
-    drawStack.setDiscardStack(discardStack);
-    stacks.push(drawStack);
-    stacks.push(discardStack);
-
-    
-    let sx = width - C.cardWidth - C.stackPadding;
-    let sy = C.stackPadding;
-    for (let i = 0; i < 4; i++) {
-        stacks.push(new SuitStack(sx, sy, false));
-        sx -= C.cardWidth + C.stackPadding;
-    }
-
-    let totalW = (PILE_COUNT * C.cardWidth) + (C.stackPadding * (PILE_COUNT - 1));
-    sx = width/2 - totalW/2;
-    sy = C.cardHeight + C.stackPadding * 3;
-    for (let i = 0; i < PILE_COUNT; i++) {
-        let s = new PlayStack(sx, sy, true);
-        deck.dealTo(s, (i+1));
-        stacks.push(s);
-        sx += C.cardWidth + C.stackPadding;
-    }
-
-    deck.dealTo(stacks[0], deck.cards.length-1);
-
     activeCard = null;
 
     mouseHasMoved = false;
+
+    deck = createUnoDeck(unoCardsPNG);
+    deck.shuffle();
+
+    test = [];
+    for (let i = 0; i < 1; i++) {
+        deck.cards[i].setPos(createVector(width/2, height/2));
+        test.push(deck.cards[i]);
+    }
+
+    console.log(deck);
 }
 
 function draw() {
@@ -89,22 +67,9 @@ function draw() {
 
     let m = getMousePos();
 
-    let moveSet = null;
-    if (activeStack)
-        activeStack.hovered = false;
-    activeStack = null;
-    for (let s of stacks) {
-        s.update(m);
-        if (s.moveSet.length)
-            moveSet = s.moveSet;
-        if (s.hovered)
-            activeStack = s;
-        s.draw();
-    }
-    if (moveSet) {
-        for (let c of moveSet) {
-            c.draw();
-        }
+    for (let t of test) {
+        t.update(m);
+        t.draw();
     }
 }
 
@@ -115,25 +80,26 @@ function mouseDragged() {
             activeCard.originalPos = activeCard.pos.copy();
         }
         let delta = getMouseMoved();
-        activeCard.stack.updateMoveSet(delta);
+        activeCard.pos.add(delta);
+        // activeCard.stack.updateMoveSet(delta);
     }
     return false;
 }
 
 function mouseReleased() {
     if (activeCard) {
-        if (activeStack && activeStack !== activeCard.stack) {
-            if (activeStack.willAccept(activeCard.stack.moveSet)) {
-                let fromStack = activeCard.stack;
-                let moveSet = fromStack.moveSet;
-                fromStack.removeCards(moveSet);
-                fromStack.destroyMoveSet();
-                activeStack.addCards(moveSet);
-            }
-        }
-        if (!activeCard.turned && activeCard.stack.cards[activeCard.stack.cards.length-1] === activeCard)
-            activeCard.turned = true;
-        deactivateActiveCard();
+        // if (activeStack && activeStack !== activeCard.stack) {
+        //     if (activeStack.willAccept(activeCard.stack.moveSet)) {
+        //         let fromStack = activeCard.stack;
+        //         let moveSet = fromStack.moveSet;
+        //         fromStack.removeCards(moveSet);
+        //         fromStack.destroyMoveSet();
+        //         activeStack.addCards(moveSet);
+        //     }
+        // }
+        // if (!activeCard.turned && activeCard.stack.cards[activeCard.stack.cards.length-1] === activeCard)
+        //     activeCard.turned = true;
+        // deactivateActiveCard();
     }
     return false;
 }
@@ -141,8 +107,6 @@ function mouseReleased() {
 function mouseClicked() {
     if (activeCard)
         activeCard.turned = true;
-    if (drawStack.hovered)
-        drawStack.handleClick();
 }
 
 function mouseMoved() {
@@ -187,8 +151,8 @@ function pushFader(pos, label) {
 function deactivateActiveCard() {
     activeCard.dragging = false;
     activeCard.hovered = false;
-    activeCard.pos.set(activeCard.originalPos.copy());
-    activeCard.stack.destroyMoveSet();
+    // activeCard.pos.set(activeCard.originalPos.copy());
+    // activeCard.stack.destroyMoveSet();
     activeCard = null;
 }
 
@@ -196,9 +160,8 @@ function activateCard(card) {
     if (activeCard)
         deactivateActiveCard()
     card.originalPos = card.pos.copy();
-    card.hovered = true;
     activeCard = card;
-    activeCard.stack.createMoveSet();
+    // activeCard.stack.createMoveSet();
 }
 
 function collidesRectPoint(rbb, p) {
@@ -222,4 +185,12 @@ function getBoundingBox(vec, w, h) {
         b: vec.y + h,
         l: vec.x
     }
+}
+
+function calcConstants() {
+    C.cardWidth = 100;
+    C.cardHeight = 150;
+    C.suitShapeSize = C.cardWidth / 10;
+    C.scaleFactor = 1;
+    C.stackPadding = C.cardWidth / 4;
 }
